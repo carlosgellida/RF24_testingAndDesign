@@ -60,12 +60,16 @@ void InitialiceRadio() {
 
     radio.setPALevel(RF24_PA_MAX);  // RF24_PA_MAX is default.
 
-    radio.setRetries(1, 6); 
+    radio.setRetries(1, 5); 
 
     // save on transmission time by setting the radio to only transmit the
     // number of bytes we need to transmit a float
 
     radio.setPayloadSize(sizeof(qDeseado)); // float datatype occupies ?? bytes
+
+    radio.setChannel(2475); 
+
+    radio.setDataRate(RF24_2MBPS); 
 
     // set the TX address of the RX node into the TX pipe
     radio.openWritingPipe(address[radioNumber]);     // always uses pipe 0
@@ -86,7 +90,7 @@ void InitialiceRadio() {
 bool send(Matrix<4, 1> qCurrent){
   bool sended = false; 
 
-  if ((micros() - timming) > 5000){
+  if ((micros() - timming) > 9000){
   //String qCurrentString = arr2str(qCurrent); 
 
   if (role) {
@@ -95,13 +99,13 @@ bool send(Matrix<4, 1> qCurrent){
     //unsigned long start_timer = micros();                    // start the timer
     radio.stopListening();
     //bool report = radio.write(&qCurrentString, sizeof(qCurrentString));      // transmit & save the report
-    bool report = radio.write(&qCurrent, sizeof(qCurrent)); 
+    bool report = radio.write(&qCurrent, sizeof(qCurrent));  
 
     if (report) {
       Serial.print(F("Transmission successful! "));          // payload was delivered
       Serial.print(F("current time = "));
-      Serial.print(timming);                 // print the timer result
-      Serial.print(F(" us. Sent: "));
+      Serial.print((micros() - timming)/1000);                 // print the timer result
+      Serial.print(F(" ms. Sent: "));
       //Serial.println(qCurrentString);              // print payload sent
       Serial << qCurrent << '\n' ; 
       role = !role  ;
